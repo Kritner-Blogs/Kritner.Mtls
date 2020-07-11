@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace Kritner.Mtls
 {
-    [Authorize(AuthenticationSchemes = CertificateAuthenticationDefaults.AuthenticationScheme)]
     public class WeatherForecast
     {
         public DateTime Date { get; set; }

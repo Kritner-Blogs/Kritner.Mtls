@@ -1,14 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.Certificate;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -32,6 +26,10 @@ namespace Kritner.Mtls
                 .AddAuthentication(CertificateAuthenticationDefaults.AuthenticationScheme)
                 .AddCertificate(options =>
                 {
+                    // Only allow chained certs, no self signed
+                    options.AllowedCertificateTypes = CertificateTypes.Chained;
+                    // Don't perform the check if a certificate has been revoked - requires an "online CA", which was not set up in our case.
+                    options.RevocationMode = X509RevocationMode.NoCheck;
                     options.Events = new CertificateAuthenticationEvents()
                     {
                         OnAuthenticationFailed = context =>
