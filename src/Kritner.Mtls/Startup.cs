@@ -1,5 +1,6 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Kritner.Mtls.Core;
 using Microsoft.AspNetCore.Authentication.Certificate;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -43,17 +44,18 @@ namespace Kritner.Mtls
                         OnCertificateValidated = context =>
                         {
                             var logger = context.HttpContext.RequestServices.GetService<ILogger<Startup>>();
+                            logger.LogInformation("Within the OnCertificateValidated portion of Startup");
 
-                            // You should implement a service that confirms the certificate passed in
-                            // was signed by the root CA.
-                            
-                            // Otherwise, a certificate that is valid to one of the other trusted CAs on the webserver,
-                            // would be valid in this case as well.
-                            
-                            logger.LogInformation("You did it my dudes!");
+                            var caValidator = context.HttpContext.RequestServices.GetService<ICertificateAuthorityValidator>();
+                            if (!caValidator.IsValid(context.ClientCertificate))
+                            {
+                                const string failValidationMsg = "The client certificate failed to validate";
+                                logger.LogWarning(failValidationMsg);
+                                context.Fail(failValidationMsg);
+                            }
 
                             return Task.CompletedTask;
-                        } 
+                        }
                     };
                 });
             
