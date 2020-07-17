@@ -1,5 +1,7 @@
+using Kritner.Mtls.Core;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Https;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Kritner.Mtls
@@ -13,6 +15,10 @@ namespace Kritner.Mtls
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .ConfigureServices(serviceCollection =>
+                {
+                    serviceCollection.AddSingleton<ICertificateAuthorityValidator, CertificateAuthorityValidator>();
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
